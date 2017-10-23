@@ -103,10 +103,10 @@ public class Interface extends JFrame implements ActionListener{
                     Integer.parseInt(ObjectsNumberField.getText()));
             client.start();
             
-            client_receiver = new ClientReceiver(client.getClientPortNumber());
-            client_receiver.start();
-            
             this.dispose();
+            
+            client_receiver = new ClientReceiver(7778);
+            client_receiver.start();            
         }
         else{
             JOptionPane.showMessageDialog(null,"the data has been entered in an incorrect format or this is not complete","Error",JOptionPane.ERROR_MESSAGE);

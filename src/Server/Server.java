@@ -29,7 +29,7 @@ public class Server {
 		this.infoTemporal = new ArrayList[100];
 
 		System.out.printf("*************************************" + "\n");
-		System.out.println("I am Ready!!, Port: " + port);
+		System.out.println("Server ready to receive. Port: " + port);
 		System.out.printf("*************************************" + "\n");
 	}
 

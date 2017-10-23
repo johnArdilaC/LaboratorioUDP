@@ -25,6 +25,10 @@ public class ClientReceiver {
 	public ClientReceiver(int port) {
 		this.port = port;
 		this.infoTemporal = new ArrayList[100];
+		
+		System.out.printf("*************************************" + "\n");
+		System.out.println("Client ready to receive. Port: " + port);
+		System.out.printf("*************************************" + "\n");
 	}
 
 	public void start() {
