@@ -1,14 +1,9 @@
 package Client;
 
-import javax.swing.*;
-
 import Client.Object;
-import Server.ClientInformation;
-import Server.Server;
 
 import java.io.*;
 import java.net.*;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,14 +13,12 @@ import java.util.concurrent.CompletableFuture;
 public class ClientReceiver {
 
 	private int port;
-	private DatagramSocket datagramSocket;
-	private ArrayList<String>[] infoTemporal;
-	private static int ID_GENERATOR = 0;
+	private ArrayList infoTemporal;
 
 	public ClientReceiver(int port) {
 		this.port = port;
-		this.infoTemporal = new ArrayList[100];
-		
+		this.infoTemporal = new ArrayList();
+
 		System.out.printf("*************************************" + "\n");
 		System.out.println("Client ready to receive. Port: " + port);
 		System.out.printf("*************************************" + "\n");
@@ -60,7 +53,7 @@ public class ClientReceiver {
 				Object object = (Object) ois.readObject();
 				ZonedDateTime timeObject = ZonedDateTime.now(ZoneId.of("GMT"));
 				int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
-				insertRecord(timeObject, object, -1);
+				insertRecord(timeObject, object);
 
 			}
 
@@ -71,26 +64,21 @@ public class ClientReceiver {
 		}
 	}
 
-	public void insertRecord(ZonedDateTime arrivalTime, Object object, int idClient) throws IOException {
-		String fileName = "client" + idClient + ".txt";
+	public void insertRecord(ZonedDateTime arrivalTime, Object object) throws IOException {
+		String fileName = "server" + ".txt";
 		int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
 		int timeDifference = (arrivalTime.getNano() - time) / 1000000;
 		String t = object.getSequenceNumer() + ": " + timeDifference + "ms\n";
-		infoTemporal[idClient].add(t);
+		infoTemporal.add(t);
 	}
 
 	public void writeRecords() throws IOException {
-		for (int i = 0; i < 100; i++) {
-			if (infoTemporal[i] == null)
-				return;
-			String fileName = "client" + i + ".txt";
-			FileWriter fileWriter = new FileWriter(fileName, true);
-			for (int j = 0; j < infoTemporal[i].size(); j++) {
-				fileWriter.write(infoTemporal[i].get(j));
-			}
-			infoTemporal[i].clear();
-			fileWriter.close();
+		String fileName = "./files/server.txt";
+		FileWriter fileWriter = new FileWriter(fileName, true);
+		for (int j = 0; j < infoTemporal.size(); j++) {
+			fileWriter.write(infoTemporal.get(j).toString());
 		}
+		infoTemporal.clear();
+		fileWriter.close();
 	}
-
 }

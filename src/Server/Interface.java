@@ -26,7 +26,7 @@ public class Interface extends JFrame implements ActionListener {
 	private ServerSender server;
 
 	public Interface() {
-
+		
 		setTitle("Enter all Information");
 		setSize(weidht, height);
 		setVisible(true);
@@ -61,7 +61,7 @@ public class Interface extends JFrame implements ActionListener {
 		accept.setActionCommand("c1");
 		accept.addActionListener(this);
 		add(accept);
-
+		
 		validate();
 	}
 
@@ -74,15 +74,13 @@ public class Interface extends JFrame implements ActionListener {
 	}
 
 	public void start() {
-
-		if (isNumeric(ClientPortField.getText()) && isNumeric(BufferSizeField.getText())
-				&& isNumeric(ObjectsNumberField.getText())) {
-
+		
+		if (isNumeric(BufferSizeField.getText()) && isNumeric(ObjectsNumberField.getText())) {
+			
 			server = new ServerSender(7779, "localhost", 7778, Integer.parseInt(BufferSizeField.getText()), 
 									  Integer.parseInt(ObjectsNumberField.getText()));
-			server.start();
 			
-			System.out.println("Server Sender Started");
+			server.start();
 			
 			this.dispose();
 		} else {

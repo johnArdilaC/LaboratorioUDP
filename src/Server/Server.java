@@ -106,7 +106,7 @@ public class Server {
 		for (int i = 0; i < 100; i++) {
 			if (infoTemporal[i] == null)
 				return;
-			String fileName = "client" + i + ".txt";
+			String fileName = "./files/client" + i + ".txt";
 			FileWriter fileWriter = new FileWriter(fileName, true);
 			for (int j = 0; j < infoTemporal[i].size(); j++) {
 				fileWriter.write(infoTemporal[i].get(j));
