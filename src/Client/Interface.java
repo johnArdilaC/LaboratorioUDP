@@ -24,6 +24,7 @@ public class Interface extends JFrame implements ActionListener{
     public static final int rowsNumber = 10;
 
     private Client client;
+    private ClientReceiver client_receiver;
 
     public Interface(){
 
@@ -101,6 +102,10 @@ public class Interface extends JFrame implements ActionListener{
                     Integer.parseInt(ServerPortField.getText()),Integer.parseInt(BufferSizeField.getText()),
                     Integer.parseInt(ObjectsNumberField.getText()));
             client.start();
+            
+            client_receiver = new ClientReceiver(client.getClientPortNumber());
+            client_receiver.start();
+            
             this.dispose();
         }
         else{

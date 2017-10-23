@@ -3,6 +3,10 @@ package Server;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,30 +17,20 @@ import java.util.ListIterator;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
+import javax.swing.JOptionPane;
+
 public class ServerSender {
 
 	private int port;
-	private DatagramSocket datagramSocket;
-	private String[] clientsList;
-	private ClientInformation[] clientsInformation;
-	private ArrayList<String>[] infoTemporal;
-	private static int ID_GENERATOR = 0;
-
 	private String ipNumber;
 	private int portNumber;
 	private int bufferSize;
 	private int objectsNumber;
+	private DatagramSocket socket;
+	private Object object;
 
 	public ServerSender(int port, String ipNumber, int portNumber, int bufferSize, int objectsNumber) {
 		this.port = port;
-		this.clientsList = new String[100];
-		this.clientsInformation = new ClientInformation[100];
-		this.infoTemporal = new ArrayList[100];
-
-		System.out.printf("*************************************" + "\n");
-		System.out.println("I am Ready!!, Port: " + port);
-		System.out.printf("*************************************" + "\n");
-
 		this.ipNumber = ipNumber;
 		this.portNumber = portNumber;
 		this.bufferSize = bufferSize;
@@ -46,84 +40,39 @@ public class ServerSender {
 	public void start() {
 
 		try {
-			DatagramSocket datagramSocket = new DatagramSocket(port);
-			datagramSocket.setSendBufferSize(128000);
-			byte[] buffer = new byte[200];
-			DatagramPacket datagramReceived = new DatagramPacket(buffer, buffer.length);
-			int n = 0;
+			socket = new DatagramSocket(port);
+			socket.setSendBufferSize(bufferSize);
+			InetAddress ipServer = InetAddress.getByName(ipNumber);
 
-			CompletableFuture.runAsync(() -> {
-				while (true) {
-					try {
-						Thread.sleep(11000);
-						writeRecords();
-					} catch (Exception e) {
-						e.printStackTrace();
+			for (int i = 0; i < objectsNumber; i++) {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream(6400);
+				ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+
+				object = new Object(i, LocalDateTime.now().atZone(ZoneId.of("GMT")).format(DateTimeFormatter.RFC_1123_DATE_TIME),
+									objectsNumber);
+				oos.writeObject(object);
+
+				byte[] dataByte = outputStream.toByteArray();
+
+				DatagramPacket datagram = new DatagramPacket(dataByte, dataByte.length, ipServer, portNumber);
+				socket.send(datagram);
+
+				try {
+					if (i % 600 == 0) {
+						Thread.sleep(80);
 					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-			});
-			while (true) {
-				n++;
-				datagramSocket.receive(datagramReceived);
-				byte[] data = datagramReceived.getData();
-				String message = new String(data, 0, datagramReceived.getLength());
-				ByteArrayInputStream bais = new ByteArrayInputStream(data);
-				ObjectInputStream ois = new ObjectInputStream(bais);
-				Object object = (Object) ois.readObject();
-				ZonedDateTime timeObject = ZonedDateTime.now(ZoneId.of("GMT"));
-				int idClient = existClient(datagramReceived.getAddress().toString(), datagramReceived.getPort(),
-						object.getTotalSentObjects());
-				ClientInformation info = clientsInformation[idClient];
-				int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
-				info.setNumberPacketReceived();
-				info.setAverage(timeObject.getNano(), time);
-				insertRecord(timeObject, object, idClient);
-
 			}
+			JOptionPane.showMessageDialog(null, "the objects have been sended", "OK ", JOptionPane.INFORMATION_MESSAGE);
 
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
 	}
-
-	public int existClient(String address, int port, int totalObjects) {
-		boolean exist = false;
-		String id = address + port;
-		for (int i = 0; i < clientsList.length && !exist; i++) {
-			if (clientsList[i] != null && clientsList[i].equalsIgnoreCase(id))
-				return i;
-		}
-		if (!exist) {
-			ClientInformation info = new ClientInformation(ID_GENERATOR, totalObjects);
-			clientsInformation[ID_GENERATOR] = info;
-			infoTemporal[ID_GENERATOR] = new ArrayList();
-			clientsList[ID_GENERATOR++] = address + port;
-		}
-		return ID_GENERATOR - 1;
-	}
-
-	public void insertRecord(ZonedDateTime arrivalTime, Object object, int idClient) throws IOException {
-		String fileName = "client" + idClient + ".txt";
-		int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
-		int timeDifference = (arrivalTime.getNano() - time) / 1000000;
-		String t = object.getSequenceNumer() + ": " + timeDifference + "ms\n";
-		infoTemporal[idClient].add(t);
-	}
-
-	public void writeRecords() throws IOException {
-		for (int i = 0; i < 100; i++) {
-			if (infoTemporal[i] == null)
-				return;
-			String fileName = "client" + i + ".txt";
-			FileWriter fileWriter = new FileWriter(fileName, true);
-			for (int j = 0; j < infoTemporal[i].size(); j++) {
-				fileWriter.write(infoTemporal[i].get(j));
-			}
-			infoTemporal[i].clear();
-			fileWriter.close();
-		}
-	}
-
 }

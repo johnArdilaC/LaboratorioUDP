@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Client {
@@ -13,11 +12,11 @@ public class Client {
 	private int idClient;
 	private String ipNumber;
 	private int portNumber;
+	private int clientPortNumber;
 	private int bufferSize;
 	private int objectsNumber;
 	private Object object;
 	private DatagramSocket socket;
-	private String clientFilePath = "./data/ClientId" + idClient + "/";
 
 	public Client(String ipNumber, int portNumber, int bufferSize, int objectsNumber) {
 
@@ -40,6 +39,10 @@ public class Client {
 	public void setIdClient(int idClient) {
 		this.idClient = idClient;
 	}
+	
+	public void setClientPortNumber(int pn) {
+		this.clientPortNumber = pn;
+	}
 
 	public String getIpNumber() {
 		return ipNumber;
@@ -51,6 +54,10 @@ public class Client {
 
 	public int getPortNumber() {
 		return portNumber;
+	}
+	
+	public int getClientPortNumber() {
+		return clientPortNumber;
 	}
 
 	public void setPortNumber(int portNumber) {
@@ -76,6 +83,7 @@ public class Client {
 	public void start() {
 		try {
 			socket = new DatagramSocket();
+			setClientPortNumber(socket.getLocalPort());
 			socket.setSendBufferSize(bufferSize);
 			InetAddress ipServer = InetAddress.getByName(ipNumber);
 
