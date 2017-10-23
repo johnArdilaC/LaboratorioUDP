@@ -11,13 +11,11 @@ public class Interface extends JFrame implements ActionListener{
     private JLabel ServerPort;
     private JLabel BufferSize;
     private JLabel ObjectsNumber;
-    private JLabel Clientid;
 
     private JTextField ServerIPField;
     private JTextField ServerPortField;
     private JTextField BufferSizeField;
     private JTextField ObjectsNumberField;
-    private JTextField ClientidField;
 
     private JButton accept;
 

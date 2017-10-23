@@ -13,7 +13,7 @@ import java.util.ListIterator;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
-public class Server {
+public class ServerSender {
 
 	private int port;
 	private DatagramSocket datagramSocket;
@@ -22,7 +22,12 @@ public class Server {
 	private ArrayList<String>[] infoTemporal;
 	private static int ID_GENERATOR = 0;
 
-	public Server(int port) {
+	private String ipNumber;
+	private int portNumber;
+	private int bufferSize;
+	private int objectsNumber;
+
+	public ServerSender(int port, String ipNumber, int portNumber, int bufferSize, int objectsNumber) {
 		this.port = port;
 		this.clientsList = new String[100];
 		this.clientsInformation = new ClientInformation[100];
@@ -31,6 +36,11 @@ public class Server {
 		System.out.printf("*************************************" + "\n");
 		System.out.println("I am Ready!!, Port: " + port);
 		System.out.printf("*************************************" + "\n");
+
+		this.ipNumber = ipNumber;
+		this.portNumber = portNumber;
+		this.bufferSize = bufferSize;
+		this.objectsNumber = objectsNumber;
 	}
 
 	public void start() {
@@ -116,8 +126,4 @@ public class Server {
 		}
 	}
 
-	public static void main(String[] args) {
-		Server server = new Server(7777);
-		server.start();
-	}
 }
