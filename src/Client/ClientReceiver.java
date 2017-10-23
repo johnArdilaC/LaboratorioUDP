@@ -28,8 +28,10 @@ public class ClientReceiver {
 
 		try {
 			DatagramSocket datagramSocket = new DatagramSocket(port);
-			datagramSocket.setSendBufferSize(128000);
-			byte[] buffer = new byte[200];
+			datagramSocket.setSendBufferSize(12800000);
+			//byte[] buffer = new byte[1049000]; //1MiB
+			byte[] buffer = new byte[7340000]; //7MiB
+			//byte[] buffer = new byte[73400000]; //70MiB
 			DatagramPacket datagramReceived = new DatagramPacket(buffer, buffer.length);
 			int n = 0;
 
@@ -43,6 +45,7 @@ public class ClientReceiver {
 					}
 				}
 			});
+			System.out.println("Tiempo inicial: "+ZonedDateTime.now(ZoneId.of("GMT")).toString());
 			while (true) {
 				n++;
 				datagramSocket.receive(datagramReceived);
@@ -52,9 +55,7 @@ public class ClientReceiver {
 				ObjectInputStream ois = new ObjectInputStream(bais);
 				Object object = (Object) ois.readObject();
 				ZonedDateTime timeObject = ZonedDateTime.now(ZoneId.of("GMT"));
-				int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
 				insertRecord(timeObject, object);
-
 			}
 
 		} catch (IOException e) {
@@ -65,10 +66,8 @@ public class ClientReceiver {
 	}
 
 	public void insertRecord(ZonedDateTime arrivalTime, Object object) throws IOException {
-		String fileName = "server" + ".txt";
-		int time = ZonedDateTime.parse(object.getTimeMark(), DateTimeFormatter.RFC_1123_DATE_TIME).getNano();
-		int timeDifference = (arrivalTime.getNano() - time) / 1000000;
-		String t = object.getSequenceNumer() + ": " + timeDifference + "ms\n";
+		int time = arrivalTime.getNano();
+		String t = object.getSequenceNumer() + " " + time + " ns\n";
 		infoTemporal.add(t);
 	}
 

@@ -52,6 +52,7 @@ public class Server {
 					}
 				}
 			});
+			//System.out.println("Tiempo inicial: "+ZonedDateTime.now(ZoneId.of("GMT")).toString());
 			while (true) {
 				n++;
 				datagramSocket.receive(datagramReceived);
@@ -68,7 +69,7 @@ public class Server {
 				info.setNumberPacketReceived();
 				info.setAverage(timeObject.getNano(), time);
 				insertRecord(timeObject, object, idClient);
-
+				//System.out.println("Tiempo final: "+ZonedDateTime.now(ZoneId.of("GMT")).toString());
 			}
 
 		} catch (IOException e) {
